@@ -3,7 +3,8 @@
 import { contactLinks } from "@/src/data/contact";
 import { ArrowUpRight, MapPin, Send } from "lucide-react";
 import { motion, type Variants } from "motion/react";
-
+import { useState } from "react";
+import { toast } from "sonner";
 const containerVariants: Variants = {
   hidden: {},
   visible: {
@@ -29,6 +30,54 @@ const fadeUpVariants: Variants = {
 };
 
 export default function Contact() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    setIsSubmitting(true);
+
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    formData.append(
+      "access_key",
+      process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ?? "",
+    );
+
+    formData.append("from_name", "Portfolio Contact Form");
+    formData.append("subject", "New message from your portfolio");
+
+    try {
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result: {
+        success: boolean;
+        message?: string;
+      } = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Unable to send message.");
+      }
+
+      toast.success("Your message was sent successfully.");
+
+      form.reset();
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.";
+
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
     <section
       id="contact"
@@ -113,12 +162,7 @@ export default function Contact() {
               </h3>
             </div>
 
-            <form
-              action="mailto:your-email@gmail.com"
-              method="post"
-              encType="text/plain"
-              className="mt-8 space-y-5"
-            >
+            <form onSubmit={handleSubmit} className="mt-8 space-y-5">
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>
                   <label
@@ -195,12 +239,22 @@ export default function Contact() {
 
               <motion.button
                 type="submit"
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                className="pink-button w-full gap-2 sm:w-auto"
+                disabled={isSubmitting}
+                whileHover={isSubmitting ? undefined : { y: -2 }}
+                whileTap={isSubmitting ? undefined : { scale: 0.98 }}
+                className="pink-button w-full gap-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
-                Send Message
-                <Send className="size-4" />
+                {isSubmitting ? (
+                  <>
+                    <span className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    Send Message
+                    <Send className="size-4" />
+                  </>
+                )}
               </motion.button>
             </form>
           </motion.div>

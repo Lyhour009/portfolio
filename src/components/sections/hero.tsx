@@ -35,7 +35,7 @@ export default function Hero() {
       className="relative overflow-hidden border-b border-border/70"
     >
       {/* Background decoration */}
-      <div className="container-page grid min-h-[calc(100vh-4.5rem)] items-center gap-14 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:py-24">
+      <div className="container-page grid min-h-[calc(100svh-4.5rem)] items-center gap-14 py-16 lg:grid-cols-[0.9fr_1.1fr] lg:py-24">
         {/* Left content */}
         <motion.div
           variants={containerAnimation}

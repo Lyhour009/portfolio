@@ -1,10 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowUpRight, Layers3, Sparkles } from "lucide-react";
-import { motion, type Variants } from "motion/react";
+import { ArrowUpRight, Layers3 } from "lucide-react";
+import { AnimatePresence, motion, type Variants } from "motion/react";
 import { FaGithub } from "react-icons/fa6";
-import { projects } from "@/src/data/project";
+import { ProjectCategory, projects } from "@/src/data/project";
+import { useMemo, useState } from "react";
+import Link from "next/link";
+
+type ProjectFilter = "All" | ProjectCategory;
+
+const projectFilters: ProjectFilter[] = ["All", "Full Stack", "Frontend"];
 
 const containerVariants: Variants = {
   hidden: {},
@@ -15,22 +21,17 @@ const containerVariants: Variants = {
   },
 };
 
-const cardVariants: Variants = {
-  hidden: {
-    opacity: 0,
-    y: 32,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1],
-    },
-  },
-};
-
 export default function Projects() {
+  const [activeFilter, setActiveFilter] = useState<ProjectFilter>("All");
+
+  const filteredProjects = useMemo(() => {
+    if (activeFilter === "All") {
+      return projects;
+    }
+
+    return projects.filter((project) => project.category === activeFilter);
+  }, [activeFilter]);
+
   return (
     <section
       id="projects"
@@ -74,6 +75,41 @@ export default function Projects() {
           </motion.a>
         </motion.div>
 
+        <div className="mt-10 flex flex-wrap gap-2 items-center justify-center">
+          {projectFilters.map((filter) => {
+            const isActive = activeFilter === filter;
+
+            return (
+              <motion.button
+                key={filter}
+                type="button"
+                onClick={() => setActiveFilter(filter)}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.96 }}
+                className={`relative overflow-hidden rounded-xl border px-4 py-2 text-sm font-semibold transition-colors ${
+                  isActive
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-card text-muted-foreground hover:border-primary/40 hover:bg-secondary hover:text-primary"
+                }`}
+              >
+                {isActive && (
+                  <motion.span
+                    layoutId="active-project-filter"
+                    className="absolute inset-0 bg-primary"
+                    transition={{
+                      type: "spring",
+                      stiffness: 350,
+                      damping: 28,
+                    }}
+                  />
+                )}
+
+                <span className="relative z-10">{filter}</span>
+              </motion.button>
+            );
+          })}
+        </div>
+
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -82,70 +118,73 @@ export default function Projects() {
             once: true,
             amount: 0.1,
           }}
-          className="mt-12 grid gap-6 lg:grid-cols-2"
+          layout
+          className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
         >
-          {projects.map((project, index) => (
-            <motion.article
-              key={project.title}
-              variants={cardVariants}
-              whileHover={{
-                y: -6,
-              }}
-              transition={{
-                type: "spring",
-                stiffness: 240,
-                damping: 22,
-              }}
-              className={`group overflow-hidden rounded-3xl border border-border bg-card shadow-[0_10px_35px_rgba(236,72,153,0.06)] transition-colors hover:border-primary/30 ${
-                project.featured ? "lg:col-span-2" : ""
-              }`}
-            >
-              <div
-                className={
-                  project.featured ? "grid lg:grid-cols-[1.15fr_0.85fr]" : ""
-                }
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project) => (
+              <motion.article
+                layout
+                key={project.title}
+                initial={{
+                  opacity: 0,
+                  y: 24,
+                  scale: 0.97,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                  scale: 1,
+                }}
+                exit={{
+                  opacity: 0,
+                  y: 12,
+                  scale: 0.97,
+                }}
+                transition={{
+                  duration: 0.35,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+                whileHover={{
+                  y: -6,
+                }}
+                className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-[0_8px_28px_rgba(236,72,153,0.05)] transition-colors hover:border-primary/30"
               >
+                {/* Project Image */}
                 <div className="relative aspect-[16/10] overflow-hidden bg-secondary">
                   <Image
                     src={project.image}
                     alt={`${project.title} preview`}
                     fill
-                    sizes={
-                      project.featured
-                        ? "(max-width: 1024px) 100vw, 60vw"
-                        : "(max-width: 1024px) 100vw, 50vw"
-                    }
-                    className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 40vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
                   />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
-                  {project.featured && (
-                    <div className="absolute left-4 top-4 flex items-center gap-2 rounded-full border border-white/20 bg-black/35 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
-                      <Sparkles className="size-3.5" />
-                      Featured project
-                    </div>
-                  )}
+                  <div className="absolute left-4 top-4 rounded-full border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
+                    {project.category}
+                  </div>
                 </div>
 
-                <div className="flex flex-col p-6 sm:p-8">
+                {/* Project Content */}
+                <div className="flex flex-1 flex-col p-6">
                   <div className="flex size-11 items-center justify-center rounded-2xl bg-secondary text-primary">
                     <Layers3 className="size-5" />
                   </div>
 
-                  <p className="mt-6 text-sm font-semibold text-primary">
-                    {project.category}
+                  <p className="mt-5 text-sm font-semibold text-primary">
+                    {project.type}
                   </p>
 
-                  <h3 className="mt-2 text-2xl font-bold tracking-tight">
+                  <h3 className="mt-2 text-xl font-bold tracking-tight sm:text-2xl">
                     {project.title}
                   </h3>
 
-                  <p className="mt-4 leading-7 text-muted-foreground">
+                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground sm:text-base">
                     {project.description}
                   </p>
 
-                  <div className="mt-6 flex flex-wrap gap-2">
+                  {/* Technologies */}
+                  <div className="mt-5 flex flex-wrap gap-2">
                     {project.technologies.map((technology) => (
                       <span
                         key={technology}
@@ -156,7 +195,18 @@ export default function Projects() {
                     ))}
                   </div>
 
-                  <div className="mt-7 flex flex-wrap gap-3">
+                  <div className="py-6 text-right">
+                    <Link
+                      href={`/projects/${project.slug}`}
+                      className="inline-flex items-center gap-2 text-sm font-semibold text-primary transition-transform hover:translate-x-1"
+                    >
+                      View case study
+                      <ArrowUpRight className="size-4" />
+                    </Link>
+                  </div>
+
+                  {/* Buttons always stay at the bottom */}
+                  <div className="mt-auto flex flex-wrap gap-3">
                     {project.liveUrl && (
                       <motion.a
                         href={project.liveUrl}
@@ -164,7 +214,7 @@ export default function Projects() {
                         rel="noreferrer"
                         whileHover={{ y: -2 }}
                         whileTap={{ scale: 0.97 }}
-                        className="pink-button gap-2"
+                        className="pink-button flex-1 justify-center gap-2 whitespace-nowrap"
                       >
                         Live Demo
                         <ArrowUpRight className="size-4" />
@@ -178,7 +228,7 @@ export default function Projects() {
                         rel="noreferrer"
                         whileHover={{ y: -2 }}
                         whileTap={{ scale: 0.97 }}
-                        className="white-button gap-2"
+                        className="white-button flex-1 justify-center gap-2 whitespace-nowrap"
                       >
                         <FaGithub className="size-4" />
                         Source Code
@@ -186,9 +236,9 @@ export default function Projects() {
                     )}
                   </div>
                 </div>
-              </div>
-            </motion.article>
-          ))}
+              </motion.article>
+            ))}
+          </AnimatePresence>
         </motion.div>
       </div>
     </section>

@@ -5,19 +5,19 @@ export const contactLinks = [
   {
     label: "Email",
     value: "lyhouromega855@gmail.com",
-    href: "mailto:your-email@gmail.com",
+    href: "mailto:lyhouromega855@gmail.com",
     icon: Mail,
   },
   {
     label: "Facebook",
-    value: "linkedin.com/in/your-username",
-    href: "https://linkedin.com/in/your-username",
+    value: "Ah Smos",
+    href: "https://www.facebook.com/share/18kLj6KsTg/?mibextid=wwXIfr",
     icon: FaFacebook,
   },
   {
     label: "GitHub",
-    value: "github.com/lyhour009",
-    href: "https://github.com/your-username",
+    value: "Git Hub",
+    href: "https://github.com/Lyhour009",
     icon: FaGithub,
   },
 ];

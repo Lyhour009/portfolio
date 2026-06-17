@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/src/components/providers/theme-provider";
+import { Toaster } from "sonner";
 
 const geistMono = Inter({
   weight: "400",
@@ -11,7 +12,7 @@ const geistMono = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Hour Dev | Software Developer",
+  title: "Lyhour Dev | Software Developer",
   description:
     "Personal portfolio showcasing my projects, skills, and development experience.",
 };
@@ -35,6 +36,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

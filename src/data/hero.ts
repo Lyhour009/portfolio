@@ -11,9 +11,9 @@ export const socialLinks = [
     href: "https://www.facebook.com/share/18kLj6KsTg/?mibextid=wwXIfr",
     icon: FaFacebook,
   },
-  {
-    label: "Email",
-    href: "https://mail.google.com/mail/u/0/#inbox",
-    icon: Mail,
-  },
+  // {
+  //   label: "Email",
+  //   href: "https://mail.google.com/mail/u/0/#inbox",
+  //   icon: Mail,
+  // },
 ];
