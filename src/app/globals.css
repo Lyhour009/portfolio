@@ -1,26 +1,138 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --background: #fff8fb;
+  --foreground: #101018;
+
+  --card: #ffffff;
+  --card-foreground: #101018;
+
+  --primary: #ec4899;
+  --primary-foreground: #ffffff;
+
+  --secondary: #fce7f3;
+  --secondary-foreground: #be185d;
+
+  --muted: #fdf2f8;
+  --muted-foreground: #6b7280;
+
+  --accent: #f472b6;
+  --accent-foreground: #ffffff;
+
+  --border: #f6cddd;
+  --input: #f6cddd;
+  --ring: #ec4899;
+
+  --radius: 1rem;
+}
+
+.dark {
+  --background: #0b0b12;
+  --foreground: #fafafa;
+
+  --card: #14141d;
+  --card-foreground: #fafafa;
+
+  --primary: #f472b6;
+  --primary-foreground: #ffffff;
+
+  --secondary: #2a1321;
+  --secondary-foreground: #fbcfe8;
+
+  --muted: #171720;
+  --muted-foreground: #a1a1aa;
+
+  --accent: #ec4899;
+  --accent-foreground: #ffffff;
+
+  --border: #2b2b38;
+  --input: #2b2b38;
+  --ring: #f472b6;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/40;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: Arial, Helvetica, sans-serif;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-5 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  .soft-card {
+    @apply rounded-3xl border border-border bg-card shadow-[0_20px_60px_rgba(236,72,153,0.08)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.28)];
+  }
+
+  .glass-card {
+    @apply rounded-3xl border border-border bg-white/70 shadow-[0_24px_80px_rgba(236,72,153,0.12)] backdrop-blur-xl dark:bg-white/[0.04] dark:shadow-[0_24px_80px_rgba(0,0,0,0.35)];
+  }
+
+  .pink-gradient {
+    @apply bg-gradient-to-r from-pink-500 via-rose-500 to-pink-400 bg-clip-text text-transparent dark:from-pink-300 dark:via-pink-400 dark:to-rose-300;
+  }
+
+  .pink-button {
+    @apply inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground shadow-[0_6px_18px_rgba(236,72,153,0.22)] transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(236,72,153,0.28)];
+  }
+
+  .white-button {
+    @apply inline-flex items-center justify-center rounded-2xl border border-border bg-card px-5 py-3 text-sm font-semibold text-foreground shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-primary hover:text-primary;
+  }
+
+  .badge-soft {
+    @apply inline-flex items-center rounded-full border border-pink-200 bg-pink-50 px-4 py-2 text-sm font-medium text-pink-600 dark:border-pink-500/20 dark:bg-pink-500/10 dark:text-pink-300;
+  }
+
+  .code-card {
+    @apply rounded-3xl border border-border bg-white/80 shadow-[0_25px_80px_rgba(236,72,153,0.14)] backdrop-blur-xl dark:bg-[#11111a]/90 dark:shadow-[0_25px_80px_rgba(0,0,0,0.4)];
+  }
 }
