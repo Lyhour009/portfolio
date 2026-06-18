@@ -83,7 +83,7 @@ export default function Hero() {
             </motion.a>
 
             <motion.a
-              href="/kong-cv.pdf"
+              href="/cv.pdf"
               download
               whileHover={{ y: -2 }}
               whileTap={{ scale: 0.97 }}

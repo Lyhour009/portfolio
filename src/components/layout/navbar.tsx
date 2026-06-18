@@ -1,12 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 import Link from "next/link";
 import { ArrowUpRight, CodeXml, Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
 import { navigationItems } from "@/src/data/navigation";
 import { ThemeToggle } from "@/src/components/shared/theme-toggle";
+
+const NAVBAR_OFFSET = 90;
+const MOBILE_MENU_ANIMATION_DURATION = 300;
 
 const navbarAnimation = {
   hidden: {
@@ -40,28 +43,31 @@ function getSectionId(href: string) {
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const [activeSection, setActiveSection] = useState("home");
 
+  /*
+   * Updates the active navigation item while scrolling.
+   */
   useEffect(() => {
     function updateActiveSection() {
-      const navbarOffset = 120;
-
       const sections = navigationItems
         .map((item) => {
           const sectionId = getSectionId(item.href);
+
           return document.getElementById(sectionId);
         })
         .filter((section): section is HTMLElement => section !== null);
 
-      if (sections.length === 0) return;
+      if (sections.length === 0) {
+        return;
+      }
 
-      const currentScrollPosition = window.scrollY + navbarOffset;
+      const currentPosition = window.scrollY + NAVBAR_OFFSET + 20;
 
       let currentSection = sections[0].id;
 
       for (const section of sections) {
-        if (section.offsetTop <= currentScrollPosition) {
+        if (section.offsetTop <= currentPosition) {
           currentSection = section.id;
         }
       }
@@ -87,17 +93,52 @@ export default function Navbar() {
 
     return () => {
       window.removeEventListener("scroll", updateActiveSection);
+
       window.removeEventListener("resize", updateActiveSection);
     };
   }, []);
 
-  function closeMenu() {
-    setIsMenuOpen(false);
-  }
+  /*
+   * Closes the mobile menu and scrolls to a section.
+   */
+  function handleNavigation(
+    event: MouseEvent<HTMLAnchorElement>,
+    sectionId: string,
+  ) {
+    event.preventDefault();
 
-  function handleNavigation(sectionId: string) {
+    const targetSection = document.getElementById(sectionId);
+
+    if (!targetSection) {
+      console.warn(`Navigation section "${sectionId}" was not found.`);
+
+      return;
+    }
+
+    const menuWasOpen = isMenuOpen;
+
     setActiveSection(sectionId);
-    closeMenu();
+    setIsMenuOpen(false);
+
+    /*
+     * On mobile, wait for the collapsing menu animation.
+     * Otherwise, the changing header height can interrupt scrolling.
+     */
+    const delay = menuWasOpen ? MOBILE_MENU_ANIMATION_DURATION : 0;
+
+    window.setTimeout(() => {
+      const targetPosition =
+        targetSection.getBoundingClientRect().top +
+        window.scrollY -
+        NAVBAR_OFFSET;
+
+      window.scrollTo({
+        top: targetPosition,
+        behavior: "smooth",
+      });
+
+      window.history.replaceState(null, "", `#${sectionId}`);
+    }, delay);
   }
 
   return (
@@ -118,7 +159,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="#home"
-          onClick={() => handleNavigation("home")}
+          onClick={(event) => handleNavigation(event, "home")}
           className="group flex items-center gap-2"
         >
           <span className="flex size-10 items-center justify-center rounded-xl bg-secondary text-primary transition-transform duration-300 group-hover:rotate-6">
@@ -126,7 +167,8 @@ export default function Navbar() {
           </span>
 
           <span className="text-lg font-bold tracking-tight">
-            Lyhour-<span className="text-primary">Dev</span>
+            Lyhour-
+            <span className="text-primary">Dev</span>
           </span>
         </Link>
 
@@ -134,13 +176,14 @@ export default function Navbar() {
         <div className="hidden items-center gap-8 lg:flex">
           {navigationItems.map((item, index) => {
             const sectionId = getSectionId(item.href);
+
             const isActive = activeSection === sectionId;
 
             return (
               <motion.a
                 key={item.href}
                 href={item.href}
-                onClick={() => handleNavigation(sectionId)}
+                onClick={(event) => handleNavigation(event, sectionId)}
                 initial={{
                   opacity: 0,
                   y: -8,
@@ -184,7 +227,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2.5">
           <motion.a
             href="#contact"
-            onClick={() => handleNavigation("contact")}
+            onClick={(event) => handleNavigation(event, "contact")}
             whileHover={{
               y: -2,
               scale: 1.02,
@@ -214,10 +257,15 @@ export default function Navbar() {
 
           <ThemeToggle />
 
+          {/* Mobile menu button */}
           <motion.button
             type="button"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.92 }}
+            whileHover={{
+              scale: 1.05,
+            }}
+            whileTap={{
+              scale: 0.92,
+            }}
             onClick={() => setIsMenuOpen((current) => !current)}
             aria-label={
               isMenuOpen ? "Close navigation menu" : "Open navigation menu"
@@ -262,7 +310,7 @@ export default function Navbar() {
             exit="exit"
             variants={mobileMenuAnimation}
             transition={{
-              duration: 0.3,
+              duration: MOBILE_MENU_ANIMATION_DURATION / 1000,
               ease: "easeInOut",
             }}
             className="overflow-hidden border-t border-border/70 bg-background/95 backdrop-blur-xl lg:hidden"
@@ -270,13 +318,14 @@ export default function Navbar() {
             <div className="container-page flex flex-col py-4">
               {navigationItems.map((item, index) => {
                 const sectionId = getSectionId(item.href);
+
                 const isActive = activeSection === sectionId;
 
                 return (
                   <motion.a
                     key={item.href}
                     href={item.href}
-                    onClick={() => handleNavigation(sectionId)}
+                    onClick={(event) => handleNavigation(event, sectionId)}
                     initial={{
                       opacity: 0,
                       x: -12,
@@ -309,7 +358,7 @@ export default function Navbar() {
 
               <motion.a
                 href="#contact"
-                onClick={() => handleNavigation("contact")}
+                onClick={(event) => handleNavigation(event, "contact")}
                 whileTap={{
                   scale: 0.98,
                 }}
