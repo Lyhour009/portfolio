@@ -95,7 +95,7 @@ export const projects: Project[] = [
       "Improved project presentation",
       "Built reusable UI patterns",
     ],
-    liveUrl: "https://your-portfolio-domain.com",
+    liveUrl: "https://hour-dev-portfolio.vercel.app/#home",
     githubUrl: "https://github.com/lyhour009/portfolio",
   },
 ];
